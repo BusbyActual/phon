@@ -1,59 +1,44 @@
-# 1)  Open source file, and create variables for document prep.
-#     First line is a tuple with variables, remaining lines are a rhyme scheme
 #
-#     Example:    (language,font-size,etc..)
-#                 ----A
-#                 ----B
-#                 ----A
-#                 --B-B
-#
-# 2)  readline() and then readlines() on source file to separate first-line tuple vars
-#
-# 3)  compose TeX flags using document prep variables, introduce standard flags:
-#
-#     \usepackage{tipa}
-#     \nopagenumbers
-#
-# 4)  source language defenitions from language file referenced by doc. prep. vars
-#
-# 5)  language files will contain a dictionary which separates IPA symbols into consonants and vowels,
-#     and defines rules for their usage. The language definitions will also contain a list of
-#     possible syllable structures = [ 'CV', 'CVC', ... ]
-#
-#     phonemes = { '\IPA' : ('C',[*a],[*b], ...) , ...}
-#
-#     each '\IPA' declaration is paired with a tuple which defines rules for its usage.
-#     the tuple will begin with either 'C' or 'V' to indicate either consonant or vowel,
-#     followed by two lists, which define which symbols are permitted to preceed and follow that symbol.
-#     (it this results in a conflct where no symbols 'fit', the sound will be replaced by a stop, or comprable
-#
-# 6)  scan verse for alpha characters, and assign each instance a phoneme -
-#     this will 'seed' the verse with an initial phonemic structure
-#
-# 7)  Then all that remains to be done is randomly select syllables in the verse, assigning each a phoneme
-#     according to the language defenitions.
-#
-# 8)  This process is done once to assign each syllable a phoneme, then again to 'fill' each syllable with
-#     additional phonemes until each matches either 'CV' or 'CVC' structure (or however this is defined.)
-#
-#     Note that consonants may be composed of multiple consonant phonemes, same with vowels - this all
-#     depends on how the language defines the potential syllabic structures.
-#
-# 9)  Once the verse has been composed, write enclose strings in textIPA flags and write to the TeX file.
-#     Close the TeX file with '\bye'
-#
-# 10) close the tex file and issue commands:
-#
-#     os.system('pdftex file.tex')
-#
+# Define lists of hexdecimal values referencing certain tipa glyphs
+# Separate lists into consonants and vowels, and use these to
+# populate the verse, writing a concoction of
+# \def\syllable{\ipa\char"hex} statements to the temp.tex file.
 #
 #!/usr/bin/env python
-import sys
-import os
+import sys,os,random
+
+consonants=['70','74','FA','63','KB','71','50','62','64','E3','E9','67','E5','6D','4D','6E','EF','F1','4E','F0','E0','72','F6','52','F3','46','66','54','73','53','F9','E7','78','58','E8','68','42','76','44','7A','5A','4A','47','43','51','48','EC','D0','56','F4','F5','6A','EE','6C','ED','4C','CF']
+            
+vowels=['69','79','31','30','57','75','49','59','55','65','F8','39','38','37','6F','40','45','F7','33','C5','32','4F','35','E6','D7','61','41','36']
+            
+syllables=['cv','cvc']
+
+verse=['----A',
+       '----B',
+       '----A',
+       '--B---A',
+       '--A---B']
+       
+rhymes={}
+
+composition=[]
 
 with open('temp.tex','w') as temp:
-  temp.write('\\nopagenumbers\n\\usepackage{tipa}\n')
-  temp.write('\\textipa{Z}')
-  temp.write('\\bye')
+  temp.write('\\nopagenumbers\n\\font\ipa=tipa17\n')
+  
+  for ln in range(len(verse)):
+    composition.append([])
+    for lt in verse[ln]:
+      if lt!='-':
+        if lt not in rhymes.keys():
+          rhymes[lt]='\ipa\char"'+random.choice(consonants+vowels)
+        composition[ln].append(rhymes[lt])
+      else: composition[ln].append('\ipa\char"'+random.choice(consonants+vowels))
+  
+  composition[0]=['\ipa\char"5B']+composition[0]
+  for c in composition:
+    temp.write('\n\n'+''.join(c))
+    
+  temp.write('\ipa\char"5D\\bye')
 
 os.system('pdftex temp.tex')
