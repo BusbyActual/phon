@@ -23,20 +23,20 @@ composition=[]
 for ln in range(len(verse)):
   phonemes=''
   for lt in range(len(verse[ln])):
-    rule=random.choice(rules.split('.')
-    c=C
-    v=V
+    rule=random.choice(rules.split('.'))
+    ct=C
+    vt=V
     for d in range(len(rule)):
       if verse[ln][lt]!='-':
-        if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=random.choice(V)
+        if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=random.choice(vt)
         r=rhymes[verse[ln][lt]]
-      else: r=random.choice(V)
-      v.remove(r)
+      else: r=random.choice(vt)
+      vt.remove(r)
       if rule[d]=='c':
-        if d==0: con=random.choice(c)
-        else: con=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==r and ph[0]+1<len(cypher) and cypher[phon[0]+1] in c])
+        if d==0: con=random.choice(ct)
+        else: con=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==r and ph[0]+1<len(cypher) and cypher[phon[0]+1] in ct])
         phonemes+='\ipa\char"'+consonants(con)
-        c.remove(con)
+        ct.remove(con)
       else:
         if '/' not in r: phonemes+='\ipa\char"'+vowels[r]
         else:
