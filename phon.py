@@ -7,28 +7,42 @@ accents={'u':'08','thh':'05','th':'01','tm':'09','tl':'00','tll':'0D'}
 C=[]
 V=[]
 with open(sys.argv[1]) as source: phrase,verse=ast.literal_eval(source.readline())
-for p in phrase.split(' '):
-  if p in consonants.keys(): C.append(p)
-  else: V.append(p)
+cypher=phrase.split(' ')
+rules=''
+for p in cypher:
+  if p in consonants.keys():
+    C.append(p)
+    rules+='c'
+  elif p=='.': rules+=p
+  else:
+    V.append(p)
+    rules+='v'
+if len([rl for rl in rules.split('.') if 'vv' in rl])>0: sys.exit('ERROR: vv')
 rhymes={}
 composition=[]
 for ln in range(len(verse)):
   phonemes=''
   for lt in range(len(verse[ln])):
-    if verse[ln][lt]!='-':
-      if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=random.choice(V)
-      r=rhymes[verse[ln][lt]]
-    else: r=random.choice(C+V)
-    if r in C:
-      phonemes+='\ipa\char"'+consonants[r]
-      r=random.choice(V)
-    else: phonemes+='\ipa\char"'+consonants[random.choice(C)]
-    if '/' not in r: phonemes+='\ipa\char"'+vowels[r]
-    else:
-      a=r.split('/')
-      if a[0] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[a[1]]+'\ipa\char"'+suprasegmentals[a[0]]
-      elif a[0] in accents.keys(): phonemes+='\\'+a[0]+'{\ipa\char"'+vowels[a[1]]+'}'
-    if random.getrandbits(1)==1: phonemes+='\ipa\char"'+consonants[random.choice(C)]
+    rule=random.choice(rules.split('.')
+    c=C
+    v=V
+    for d in range(len(rule)):
+      if verse[ln][lt]!='-':
+        if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=random.choice(V)
+        r=rhymes[verse[ln][lt]]
+      else: r=random.choice(V)
+      v.remove(r)
+      if rule[d]=='c':
+        if d==0: con=random.choice(c)
+        else: con=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==r and ph[0]+1<len(cypher) and cypher[phon[0]+1] in c])
+        phonemes+='\ipa\char"'+consonants(con)
+        c.remove(con)
+      else:
+        if '/' not in r: phonemes+='\ipa\char"'+vowels[r]
+        else:
+          a=r.split('/')
+          if a[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[a[0]]+'\ipa\char"'+suprasegmentals[a[1]]
+          elif a[1] in accents.keys(): phonemes+='\\'+a[1]+'{\ipa\char"'+vowels[a[0]]+'}'
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
     else: phonemes+='\\vskip 0.4em\n'
   composition.append(phonemes)
