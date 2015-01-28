@@ -20,29 +20,37 @@ for p in cypher:
 if len([rl for rl in rules.split('.') if 'vv' in rl])>0: sys.exit('ERROR: vv')
 rhymes={}
 composition=[]
+print(rules)
 for ln in range(len(verse)):
   phonemes=''
   for lt in range(len(verse[ln])):
     rule=random.choice(rules.split('.'))
-    ct=C
-    vt=V
+    ct=list(C)
+    vt=list(V)
+    pr=''
+    print(rule)
     for d in range(len(rule)):
-      if verse[ln][lt]!='-':
-        if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=random.choice(vt)
-        r=rhymes[verse[ln][lt]]
-      else: r=random.choice(vt)
-      vt.remove(r)
       if rule[d]=='c':
-        if d==0: con=random.choice(ct)
-        else: con=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==r and ph[0]+1<len(cypher) and cypher[phon[0]+1] in ct])
-        phonemes+='\ipa\char"'+consonants(con)
+        try: con=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in ct])
+        except IndexError: con=random.choice(ct)
+        phonemes+='\ipa\char"'+consonants[con]
+        print(con)
         ct.remove(con)
       else:
+        if verse[ln][lt]!='-':
+          if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=random.choice(vt)
+          r=rhymes[verse[ln][lt]]
+        else: r=random.choice(vt)
         if '/' not in r: phonemes+='\ipa\char"'+vowels[r]
         else:
           a=r.split('/')
           if a[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[a[0]]+'\ipa\char"'+suprasegmentals[a[1]]
           elif a[1] in accents.keys(): phonemes+='\\'+a[1]+'{\ipa\char"'+vowels[a[0]]+'}'
+        print(r)
+        pr=r
+        vt.remove(r)
+      print(ct)
+      print(vt)
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
     else: phonemes+='\\vskip 0.4em\n'
   composition.append(phonemes)
