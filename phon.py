@@ -17,10 +17,9 @@ for p in cypher:
   else:
     V.append(p)
     rules+='v'
-if len([rl for rl in rules.split('.') if 'vv' in rl])>0: sys.exit('ERROR: vv')
+if len([rl for rl in rules.split('.') if 'vv' in rl])>0: sys.exit('ERROR: syllable rules contain instance(s) of vv')
 rhymes={}
 composition=[]
-print(rules)
 for ln in range(len(verse)):
   phonemes=''
   for lt in range(len(verse[ln])):
@@ -28,13 +27,14 @@ for ln in range(len(verse)):
     ct=list(C)
     vt=list(V)
     pr=''
-    print(rule)
     for d in range(len(rule)):
       if rule[d]=='c':
-        try: con=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in ct])
-        except IndexError: con=random.choice(ct)
+        if d+1<len(rule) and rule[d+1]=='c': con=random.choice([cc[1] for cc in enumerate(cypher) if cc[0]+1<len(cypher) and cc[1] in ct and cypher[cc[0]+1] in ct])
+        else:
+          try: con=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in ct])
+          except IndexError: con=random.choice(ct)
         phonemes+='\ipa\char"'+consonants[con]
-        print(con)
+        pr=con
         ct.remove(con)
       else:
         if verse[ln][lt]!='-':
@@ -46,11 +46,8 @@ for ln in range(len(verse)):
           a=r.split('/')
           if a[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[a[0]]+'\ipa\char"'+suprasegmentals[a[1]]
           elif a[1] in accents.keys(): phonemes+='\\'+a[1]+'{\ipa\char"'+vowels[a[0]]+'}'
-        print(r)
         pr=r
         vt.remove(r)
-      print(ct)
-      print(vt)
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
     else: phonemes+='\\vskip 0.4em\n'
   composition.append(phonemes)
