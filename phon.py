@@ -17,7 +17,7 @@ for p in cypher:
   else:
     V.append(p)
     rules+='v'
-if len([rl for rl in rules.split('.') if 'vv' in rl])>0: sys.exit('ERROR: syllable rules contain instance(s) of vv')
+#if len([rl for rl in rules.split('.') if 'vv' in rl])>0: sys.exit("ERROR: vv")
 rhymes={}
 composition=[]
 for ln in range(len(verse)):
@@ -35,19 +35,27 @@ for ln in range(len(verse)):
           except IndexError: con=random.choice(ct)
         phonemes+='\ipa\char"'+consonants[con]
         pr=con
-        ct.remove(con)
+        for x,t in enumerate(ct):
+          if t==pr:
+            ct.pop(x)
+            break
       else:
-        if verse[ln][lt]!='-':
-          if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=random.choice(vt)
-          r=rhymes[verse[ln][lt]]
-        else: r=random.choice(vt)
-        if '/' not in r: phonemes+='\ipa\char"'+vowels[r]
+        if d+1<len(rule) and rule[d+1]=='v':
+          vow=random.choice([vv[1] for vv in enumerate(cypher) if vv[0]+1<len(cypher) and vv[1] in vt and cypher[vv[0]+1] in vt])
         else:
-          a=r.split('/')
-          if a[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[a[0]]+'\ipa\char"'+suprasegmentals[a[1]]
-          elif a[1] in accents.keys(): phonemes+='\\'+a[1]+'{\ipa\char"'+vowels[a[0]]+'}'
-        pr=r
-        vt.remove(r)
+          try: vow=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in vt])
+          except IndexError: vow=random.choice(vt)
+        if verse[ln][lt]!='-' and verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=vow
+        if '/' not in vow: phonemes+='\ipa\char"'+vowels[vow]
+        else:
+          va=vow.split('/')
+          if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
+          elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
+        pr=vow
+        for x,t in enumerate(vt):
+          if t==pr:
+            vt.pop(x)
+            break
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
     else: phonemes+='\\vskip 0.4em\n'
   composition.append(phonemes)
