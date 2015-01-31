@@ -32,43 +32,46 @@ for ln in range(len(verse)):
     for d in range(len(rule)):
       if rule[d]=='c': # consonant
         if d+1<len(rule) and rule[d+1]=='c': # c follows
-          dc=[cc[1] for cc in enumerate(cypher) if cc[0]+1<len(cypher) and cc[1] in ct and cypher[cc[0]+1] in ct] # identify potential cc pairs
-          if d==0: con=random.choice([pc for pc in dc if pc not in morphing]) # cannot begin with liquid or nasal
-          else: con=random.choice([pc for pc in dc if pc not in glides]) # glides can only occur at onset
+          pre=[cc[1] for cc in enumerate(cypher) if cc[0]+1<len(cypher) and cc[1] in ct and cypher[cc[0]+1] in ct] # identify potential cc pairs
+          if d==0: con=random.choice([pc for pc in pre if pc not in morphing]) # cannot begin with liquid or nasal
+          else: con=random.choice([pc for pc in pre if pc not in glides]) # glides can only occur at onset
         elif pr in C: # previous is c
           try:
-            tc=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in ct] # identify pr-c pairs
-            if rule.endswith(rule[d]): con=random.choice([pc for pc in tc if pc not in morphing]) # syllable cannot end in c + liquid/nasal
-            else: con=random.choice(tc)
+            pre=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in ct] # identify pr-c pairs
+            if rule.endswith(rule[d]): con=random.choice([pc for pc in pre if pc not in morphing]) # syllable cannot end in c + liquid/nasal
+            else:
+              con=random.choice(pre)
+              for x in range(len(str(cypher).split('.'))):
+                if cypher[x]==con and cypher[x+1]=='.': con=''
           except IndexError: con='' # no possible c+c pairs, drop consonant
         elif d!=0: con=random.choice([pc for pc in ct if pc not in glides]) # glides can only occur at onset
         else: con=random.choice([pc for pc in ct if pc not in morphing]) # cannot begin with liquid or nasal
         pr=con
         if pr!='':
           phonemes+='\ipa\char"'+consonants[con]
-          for x,t in enumerate(ct):
-            if t==pr:
-              ct.pop(x)
-              break
+          for x in ct:
+            if x==pr: ct.remove(x)
       else:
         if verse[ln][lt]!='-':
           if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=vow
-          vow=rhymes[verse[ln][lt]]
+          if pr!=rhymes[verse[ln][lt]]: vow=rhymes[verse[ln][lt]]
+          else: vow=''
         elif d+1<len(rule) and rule[d+1]=='v':
-          vow=random.choice([vv[1] for vv in enumerate(cypher) if vv[0]+1<len(cypher) and vv[1] in vt and cypher[vv[0]+1] in vt and vv[1]!=pr])
-        else:
-          try: vow=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in vt])
-          except IndexError: vow=random.choice(vt)
-        if '/' not in vow: phonemes+='\ipa\char"'+vowels[vow]
-        else:
-          va=vow.split('/')
-          if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
-          elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
+          vow=random.choice([ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in vt and cypher[ph[0]+1] in vt])
+        elif pr in V:
+          try: vow=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in vt and ph[1]!=pr])
+          except IndexError: vow=''
+        else: vow=random.choice(vt)
         pr=vow
-        for x,t in enumerate(vt):
-          if t==pr:
-            vt.pop(x)
-            break
+        if pr!='':
+          if '/' not in vow: phonemes+='\ipa\char"'+vowels[vow]
+          else:
+            va=vow.split('/')
+            if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
+            elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
+          pr=vow
+          for x in vt:
+            if x==pr: vt.remove(x)
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
     elif ln<len(verse)-1: phonemes+='\\vskip 0.4em\n'
   composition.append(phonemes)
