@@ -26,8 +26,8 @@ for ln in range(len(verse)):
   phonemes=''
   for lt in range(len(verse[ln])):
     rule=random.choice(rules.split('.'))
-    ct=list(C)
-    vt=list(V)
+    ct=set(C)
+    vt=set(V)
     pr=''
     for d in range(len(rule)):
       if rule[d]=='c': # consonant
@@ -39,39 +39,32 @@ for ln in range(len(verse)):
           try:
             pre=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in ct] # identify pr-c pairs
             if rule.endswith(rule[d]): con=random.choice([pc for pc in pre if pc not in morphing]) # syllable cannot end in c + liquid/nasal
-            else:
-              con=random.choice(pre)
-              for x in range(len(str(cypher).split('.'))):
-                if cypher[x]==con and cypher[x+1]=='.': con=''
+            else: con=random.choice(pre)
           except IndexError: con='' # no possible c+c pairs, drop consonant
         elif d!=0: con=random.choice([pc for pc in ct if pc not in glides]) # glides can only occur at onset
         else: con=random.choice([pc for pc in ct if pc not in morphing]) # cannot begin with liquid or nasal
         pr=con
         if pr!='':
           phonemes+='\ipa\char"'+consonants[con]
-          for x in ct:
-            if x==pr: ct.remove(x)
-      else:
-        if verse[ln][lt]!='-':
-          if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=vow
+          ct.remove(pr)
+      else: # vowel
+        if verse[ln][lt]!='-': # syllable is rhyming
+          if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=vow # first occurance
           if pr!=rhymes[verse[ln][lt]]: vow=rhymes[verse[ln][lt]]
-          else: vow=''
-        elif d+1<len(rule) and rule[d+1]=='v':
-          vow=random.choice([ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in vt and cypher[ph[0]+1] in vt])
-        elif pr in V:
+          else: vow='' # drop rhyming v if v = pr
+        elif d+1<len(rule) and rule[d+1]=='v': vow=random.choice([ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in vt and cypher[ph[0]+1] in vt]) # v is next in syllable, identify vv paits in cypher
+        elif pr in V: # second in vv pair
           try: vow=random.choice([cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in vt and ph[1]!=pr])
-          except IndexError: vow=''
-        else: vow=random.choice(vt)
+          except IndexError: vow='' # no possible v+v pairs, drop vowel
+        else: vow=random.sample(vt,1)[0]
         pr=vow
         if pr!='':
-          if '/' not in vow: phonemes+='\ipa\char"'+vowels[vow]
+          if '/' not in pr: phonemes+='\ipa\char"'+vowels[pr]
           else:
-            va=vow.split('/')
+            va=pr.split('/')
             if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
             elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
-          pr=vow
-          for x in vt:
-            if x==pr: vt.remove(x)
+          vt.remove(pr)
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
     elif ln<len(verse)-1: phonemes+='\\vskip 0.4em\n'
   composition.append(phonemes)
