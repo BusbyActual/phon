@@ -6,24 +6,23 @@ suprasegmentals={':':'3A',';':'3B','rh':'7E'}
 accents={'u':'08','thh':'05','th':'01','tm':'09','tl':'00','tll':'0D'}
 morphing={'l','r','m','n','N'}
 glides={'h','j','w'}
-C=[]
-V=[]
+rhymes={}
+C=set()
+V=set()
 with open(sys.argv[1]) as source: phrase,verse=ast.literal_eval(source.readline())
 cypher=phrase.split(' ')
 rules=''
 for p in cypher:
   if p in consonants.keys():
-    C.append(p)
+    C.add(p)
     rules+='c'
   elif p=='.': rules+=p
   else:
-    V.append(p)
+    V.add(p)
     rules+='v'
 if len([rl for rl in rules.split('.') if 'vvv' in rl or 'ccc' in rl])>0: sys.exit("ERROR: vvv or ccc")
-rhymes={}
-composition=[]
+phonemes=''
 for ln in range(len(verse)):
-  phonemes=''
   for lt in range(len(verse[ln])):
     rule=random.choice(rules.split('.'))
     ct=set(C)
@@ -44,9 +43,7 @@ for ln in range(len(verse)):
         elif d!=0: con=random.choice([pc for pc in ct if pc not in glides]) # glides can only occur at onset
         else: con=random.choice([pc for pc in ct if pc not in morphing]) # cannot begin with liquid or nasal
         pr=con
-        if pr!='':
-          phonemes+='\ipa\char"'+consonants[con]
-          ct.remove(pr)
+        if pr in ct: ct.remove(pr)
       else: # vowel
         if verse[ln][lt]!='-': # syllable is rhyming
           if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=vow # first occurance
@@ -58,20 +55,17 @@ for ln in range(len(verse)):
           except IndexError: vow='' # no possible v+v pairs, drop vowel
         else: vow=random.sample(vt,1)[0]
         pr=vow
-        if pr!='':
-          if '/' not in pr: phonemes+='\ipa\char"'+vowels[pr]
-          else:
-            va=pr.split('/')
-            if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
-            elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
-          vt.remove(pr)
+        if pr in vt: vt.remove(pr)
+      if pr!='':
+        if '/' not in pr: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[pr]
+        else:
+          va=pr.split('/')
+          if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
+          elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
     elif ln<len(verse)-1: phonemes+='\\vskip 0.4em\n'
-  composition.append(phonemes)
-with open('temp.tex','w') as temp:
+with open(sys.argv[1]+'.tex','w') as temp:
   temp.write('\\font\ipa=tipa17 scaled \magstep3 \\font\\acc=tipa17\n')
   for u,h in accents.items(): temp.write('\def\\'+u+'#1{{\\acc\\accent"'+h+' #1}}'+'\n')
-  temp.write('\\null\\vfill\n')
-  for syllables in composition: temp.write(syllables)
-  temp.write('\\bye')
-os.system('pdftex temp.tex')
+  temp.write('\\null\\vfill\n'+phonemes+'\\bye')
+os.system('pdftex '+sys.argv[1]+'.tex')
