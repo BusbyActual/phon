@@ -31,31 +31,35 @@ for ln in range(len(verse)):
     pr=''
     print(rule)
     for d in range(len(rule)):
-      if rule[d]=='c': # consonant
+      if rule[d]=='c':
         if d+1<len(rule) and rule[d+1]=='c': # c follows
-          pre=[cc[1] for cc in enumerate(cypher) if cc[0]+1<len(cypher) and cc[1] in ct and cypher[cc[0]+1] in ct] # identify potential cc pairs
-          if d==0: con=random.choice([pc for pc in pre if pc not in morphing]) # cannot begin with liquid or nasal
-          else: con=random.choice([pc for pc in pre if pc not in glides]) # glides can only occur at onset
-        elif pr in C: # previous is c
+          pre=[cc[1] for cc in enumerate(cypher) if cc[0]+1<len(cypher) and cc[1] in ct and cypher[cc[0]+1] in ct]
+          print(pre)
+          if d==0: con=random.choice([pc for pc in pre if pc not in morphing])
+          else: con=random.choice([pc for pc in pre if pc not in glides])
+        elif pr in C:
           try:
-            pre=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in ct] # identify pr-c pairs
-            if d==len(rule): con=random.choice([pc for pc in pre if pc not in morphing]) # syllable cannot end in c + liquid/nasal
-            else: con=random.choice(pre)
-          except IndexError: con='' # no possible c+c pairs, drop consonant
-        elif d!=0: con=random.choice([pc for pc in ct if pc not in glides]) # glides can only occur at onset
-        else: con=random.choice([pc for pc in ct if pc not in morphing]) # cannot begin with liquid or nasal
+            pre=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in ct]
+            print(pre)
+            if d<len(rule)-1: con=random.choice(pre)
+            else: con=random.choice([pc for pc in pre if pc not in morphing])
+          except IndexError: con=''
+        elif d!=0: con=random.choice([pc for pc in ct if pc not in glides])
+        else: con=random.choice([pc for pc in ct if pc not in morphing])
         pr=con
         if con in ct: ct.remove(con)
       else:
         if d+1<len(rule) and rule[d+1]=='v':
           pre=[ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in vt and cypher[ph[0]+1] in vt]
+          print(pre)
           if verse[ln][lt]!='-':
             if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=[random.choice(pre)]
             vow=rhymes[verse[ln][lt]][0]
           else: vow=random.choice(pre)
-        elif pr in V: # second in vv pair
+        elif pr in V:
           try:
             pre=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in vt]
+            print(pre)
             if verse[ln][lt]!='-':
               if len(rhymes[verse[ln][lt]])==1: rhymes[verse[ln][lt]].append(random.choice(pre))
               vow=rhymes[verse[ln][lt]][1]
@@ -67,8 +71,8 @@ for ln in range(len(verse)):
         else: vow=random.sample(vt,1)[0]
         pr=vow
         if vow in vt: vt.remove(vow)
+      print(pr)
       if pr!='':
-        print(pr)
         if '/' not in pr: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[pr]
         else:
           va=pr.split('/')
