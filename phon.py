@@ -20,68 +20,87 @@ for p in cypher:
   else:
     V.add(p)
     rules+='v'
-if len([rl for rl in rules.split('.') if 'vvv' in rl or 'ccc' in rl])>0: sys.exit("ERROR: vvv or ccc")
 phonemes=''
+log=''
 for ln in range(len(verse)):
+  phonemes+='\centerline{'
   for lt in range(len(verse[ln])):
-    if verse[ln][lt]!='-' and verse[ln][lt] in rhymes.keys() and len(rhymes[verse[ln][lt]])>1: rule=random.choice([rl for rl in rules.split('.') if 'vv' in rl])
-    else: rule=random.choice(rules.split('.'))
+    if verse[ln][lt]!='-' and verse[ln][lt] in rhymes.keys(): rule=random.choice([rl for rl in set(rules.split('.')) if 'v'*len(rhymes[verse[ln][lt]]) in rl])
+    else: rule=random.sample(set(rules.split('.')),1)[0]
     ct=set(C)
     vt=set(V)
     pr=''
-    print(rule)
+    log+='line '+str(ln)+', syllable '+str(lt)+'\nrule = '+rule+'\n'
     for d in range(len(rule)):
       if rule[d]=='c':
-        if d+1<len(rule) and rule[d+1]=='c': # c follows
-          pre=[cc[1] for cc in enumerate(cypher) if cc[0]+1<len(cypher) and cc[1] in ct and cypher[cc[0]+1] in ct]
-          print(pre)
-          if d==0: con=random.choice([pc for pc in pre if pc not in morphing])
-          else: con=random.choice([pc for pc in pre if pc not in glides])
+        if d+1<len(rule) and rule[d+1]=='c':
+          pre=[ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in ct and cypher[ph[0]+1] in ct]
+          if d==0:
+            log+='\nfirst C & first C from C+C pairs: '+str(pre)
+            con=random.choice([pc for pc in pre if pc not in morphing])
+          else:
+            log+='\nfirst C from C+C pairs: '+str(pre)
+            con=random.choice([pc for pc in pre if pc not in glides])
         elif pr in C:
           try:
             pre=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in ct]
-            print(pre)
+            log+='\nsecond C from '+pr+'+C pairs: '+str(pre)
             if d<len(rule)-1: con=random.choice(pre)
             else: con=random.choice([pc for pc in pre if pc not in morphing])
           except IndexError: con=''
-        elif d!=0: con=random.choice([pc for pc in ct if pc not in glides])
+        elif d!=0:
+          try:
+            pre=[ph[1] for ph in enumerate(cypher) if ph[1] in ct-glides and cypher[ph[0]-1]==pr]
+            log+='\nC from '+pr+'+C pairs: '+str(pre)
+            con=random.choice(pre)
+          except IndexError: con=random.choice([pc for pc in ct if pc not in glides])
         else: con=random.choice([pc for pc in ct if pc not in morphing])
         pr=con
         if con in ct: ct.remove(con)
       else:
         if d+1<len(rule) and rule[d+1]=='v':
           pre=[ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in vt and cypher[ph[0]+1] in vt]
-          print(pre)
           if verse[ln][lt]!='-':
             if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=[random.choice(pre)]
             vow=rhymes[verse[ln][lt]][0]
-          else: vow=random.choice(pre)
+          else:
+            log+='\nfirst V from V+V pairs: '+str(pre)
+            vow=random.choice(pre)
         elif pr in V:
           try:
             pre=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in vt]
-            print(pre)
+            log+='\nsecond V from '+pr+'+V pairs: '+str(pre)
             if verse[ln][lt]!='-':
               if len(rhymes[verse[ln][lt]])==1: rhymes[verse[ln][lt]].append(random.choice(pre))
               vow=rhymes[verse[ln][lt]][1]
             else: vow=random.choice(pre)
           except IndexError: vow=''
         elif verse[ln][lt]!='-':
-          if verse[ln][lt] not in rhymes.keys(): rhymes[verse[ln][lt]]=[random.sample(vt,1)[0]]
+          if verse[ln][lt] not in rhymes.keys():
+            try: rhymes[verse[ln][lt]]=[random.choice([cc[1] for cc in enumerate(cypher) if cc[1] in vt and cypher[cc[0]-1]==pr])]
+            except IndexError: rhymes[verse[ln][lt]]=[random.choice(list(vt))]
           vow=rhymes[verse[ln][lt]][0]
-        else: vow=random.sample(vt,1)[0]
+        else:
+          try:
+            pre=[cc[1] for cc in enumerate(cypher) if cc[1] in vt and cypher[cc[0]-1]==pr]
+            vow=random.choice(pre)
+            log+='\nV from '+pr+'+V pairs: '+str(pre)
+          except IndexError: vow=random.choice(list(vt))
         pr=vow
         if vow in vt: vt.remove(vow)
-      print(pr)
+      log+='\nchoice: '+pr
       if pr!='':
         if '/' not in pr: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[pr]
         else:
           va=pr.split('/')
           if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
           elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
+    log+='\n\n'
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
-    elif ln<len(verse)-1: phonemes+='\\vskip 0.4em\n'
+    elif ln<len(verse)-1: phonemes+='}\\\n\n'
 with open(sys.argv[1]+'.tex','w') as temp:
   temp.write('\\font\ipa=tipa17 scaled \magstep3 \\font\\acc=tipa17\n')
   for u,h in accents.items(): temp.write('\def\\'+u+'#1{{\\acc\\accent"'+h+' #1}}'+'\n')
-  temp.write('\\null\\vfill\n'+phonemes+'\\bye')
+  temp.write('\\null\\vfill\n'+phonemes+'}\\bye')
+with open('log','w') as lg: lg.write(log)
 os.system('pdftex '+sys.argv[1]+'.tex')
