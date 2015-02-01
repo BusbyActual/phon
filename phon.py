@@ -25,7 +25,8 @@ log=''
 for ln in range(len(verse)):
   phonemes+='\centerline{'
   for lt in range(len(verse[ln])):
-    if verse[ln][lt]!='-' and verse[ln][lt] in rhymes.keys(): rule=random.choice([rl for rl in set(rules.split('.')) if 'v'*len(rhymes[verse[ln][lt]]) in rl])
+    # needs fix so that rhyming syllables share same # of vowels
+    if verse[ln][lt]!='-' and verse[ln][lt] in rhymes.keys(): rule=random.choice([rl for rl in set(rules.split('.')) if str('v'*len(rhymes[verse[ln][lt]])) in rl])
     else: rule=random.sample(set(rules.split('.')),1)[0]
     ct=set(C)
     vt=set(V)
