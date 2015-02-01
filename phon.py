@@ -27,7 +27,7 @@ for ln in range(len(verse)):
   for lt in range(len(verse[ln])):
     if verse[ln][lt]!='-' and verse[ln][lt] in rhymes.keys(): rule=random.choice([rl for rl in set(rules.split('.')) if str('v'*len(rhymes[verse[ln][lt]])) in rl])
     elif verse[ln][lt]==' ':
-      phonemes+='}\n\n'
+      phonemes+='}\\vskip 1em\n\n'
       break
     else: rule=random.sample(set(rules.split('.')),1)[0]
     ct=set(C)
