@@ -1,16 +1,9 @@
 line 0, syllable 0
-rule = ccvvc
+rule = vc
 
-first C & first C from C+C pairs: ['b']
-choice: b
-second C from b+C pairs: ['r']
-choice: r
-first V from V+V pairs: ['e', 'a']
-choice: e
-second V from e+V pairs: ['a']
-choice: a
-C from a+C pairs: ['k']
-choice: k
+choice: I
+C from I+C pairs: ['t']
+choice: t
 
 line 0, syllable 1
 rule = ccvvc
@@ -29,25 +22,29 @@ choice: k
 line 0, syllable 2
 rule = cvvc
 
-choice: d
+choice: t
 first V from V+V pairs: ['e', 'a']
-choice: e
-second V from e+V pairs: ['a']
 choice: a
-C from a+C pairs: ['k']
-choice: k
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
 
 line 2, syllable 0
-rule = vc
+rule = cvvc
 
+choice: b
+first V from V+V pairs: ['e', 'a']
 choice: a
-C from a+C pairs: ['k']
-choice: k
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
 
 line 2, syllable 1
 rule = cvvc
 
-choice: t
+choice: k
 first V from V+V pairs: ['e', 'a']
 choice: a
 second V from a+V pairs: ['U']
@@ -63,29 +60,26 @@ choice: b
 second C from b+C pairs: ['r']
 choice: r
 first V from V+V pairs: ['e', 'a']
-choice: e
-second V from e+V pairs: ['a']
 choice: a
-C from a+C pairs: ['k']
-choice: k
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
 
 line 4, syllable 0
-rule = vc
+rule = cvvc
 
-choice: e
-C from e+C pairs: []
-choice: b
+choice: t
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
 
 line 4, syllable 1
-rule = ccvvc
+rule = vc
 
-first C & first C from C+C pairs: ['b']
-choice: b
-second C from b+C pairs: ['r']
-choice: r
-first V from V+V pairs: ['e', 'a']
-choice: e
-second V from e+V pairs: ['a']
 choice: a
 C from a+C pairs: ['k']
 choice: k
@@ -105,128 +99,20 @@ C from a+C pairs: ['k']
 choice: k
 
 line 6, syllable 0
-rule = vc
+rule = ccvvc
 
-choice: e
-C from e+C pairs: []
+first C & first C from C+C pairs: ['b']
+choice: b
+second C from b+C pairs: ['r']
 choice: r
+first V from V+V pairs: ['e', 'a']
+choice: e
+second V from e+V pairs: ['a']
+choice: a
+C from a+C pairs: ['k']
+choice: k
 
 line 6, syllable 1
-rule = vc
-
-choice: U
-C from U+C pairs: ['n']
-choice: n
-
-line 6, syllable 2
-rule = cvvc
-
-choice: t
-first V from V+V pairs: ['e', 'a']
-choice: a
-second V from a+V pairs: ['U']
-choice: U
-C from U+C pairs: ['n']
-choice: n
-
-line 8, syllable 0
-rule = cvvc
-
-choice: t
-first V from V+V pairs: ['e', 'a']
-choice: e
-second V from e+V pairs: ['a']
-choice: a
-C from a+C pairs: ['k']
-choice: k
-
-line 8, syllable 1
-rule = vc
-
-choice: U
-C from U+C pairs: ['n']
-choice: n
-
-line 8, syllable 2
-rule = cvvc
-
-choice: b
-first V from V+V pairs: ['e', 'a']
-choice: a
-second V from a+V pairs: ['U']
-choice: U
-C from U+C pairs: ['n']
-choice: n
-
-line 10, syllable 0
-rule = cvvc
-
-choice: k
-first V from V+V pairs: ['e', 'a']
-choice: a
-second V from a+V pairs: ['U']
-choice: U
-C from U+C pairs: ['n']
-choice: n
-
-line 10, syllable 1
-rule = cvvc
-
-choice: t
-first V from V+V pairs: ['e', 'a']
-choice: a
-second V from a+V pairs: ['U']
-choice: U
-C from U+C pairs: ['n']
-choice: n
-
-line 10, syllable 2
-rule = cvvc
-
-choice: t
-first V from V+V pairs: ['e', 'a']
-choice: e
-second V from e+V pairs: ['a']
-choice: a
-C from a+C pairs: ['k']
-choice: k
-
-line 12, syllable 0
-rule = ccvvc
-
-first C & first C from C+C pairs: ['b']
-choice: b
-second C from b+C pairs: ['r']
-choice: r
-first V from V+V pairs: ['e', 'a']
-choice: a
-second V from a+V pairs: ['U']
-choice: U
-C from U+C pairs: ['n']
-choice: n
-
-line 12, syllable 1
-rule = ccvvc
-
-first C & first C from C+C pairs: ['b']
-choice: b
-second C from b+C pairs: ['r']
-choice: r
-first V from V+V pairs: ['e', 'a']
-choice: e
-second V from e+V pairs: ['a']
-choice: a
-C from a+C pairs: ['k']
-choice: k
-
-line 12, syllable 2
-rule = vc
-
-choice: U
-C from U+C pairs: ['n']
-choice: n
-
-line 14, syllable 0
 rule = cvvc
 
 choice: k
@@ -235,49 +121,34 @@ choice: e
 second V from e+V pairs: ['a']
 choice: a
 C from a+C pairs: []
-choice: d
-
-line 14, syllable 1
-rule = cvvc
-
-choice: t
-first V from V+V pairs: ['e', 'a']
-choice: a
-second V from a+V pairs: ['U']
-choice: U
-C from U+C pairs: ['n']
 choice: n
 
-line 14, syllable 2
-rule = cvvc
-
-choice: b
-first V from V+V pairs: ['e', 'a']
-choice: a
-second V from a+V pairs: ['U']
-choice: U
-C from U+C pairs: ['n']
-choice: n
-
-line 16, syllable 0
-rule = cvvc
-
-choice: b
-first V from V+V pairs: ['e', 'a']
-choice: e
-second V from e+V pairs: ['a']
-choice: a
-C from a+C pairs: ['k']
-choice: k
-
-line 16, syllable 1
+line 6, syllable 2
 rule = vc
 
 choice: e
 C from e+C pairs: []
-choice: k
+choice: d
 
-line 16, syllable 2
+line 8, syllable 0
+rule = vc
+
+choice: I
+C from I+C pairs: ['t']
+choice: t
+
+line 8, syllable 1
+rule = cvvc
+
+choice: k
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 8, syllable 2
 rule = ccvvc
 
 first C & first C from C+C pairs: ['b']
@@ -290,4 +161,145 @@ second V from e+V pairs: ['a']
 choice: a
 C from a+C pairs: ['k']
 choice: k
+
+line 10, syllable 0
+rule = vc
+
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 10, syllable 1
+rule = ccvvc
+
+first C & first C from C+C pairs: ['b']
+choice: b
+second C from b+C pairs: ['r']
+choice: r
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 10, syllable 2
+rule = ccvvc
+
+first C & first C from C+C pairs: ['b']
+choice: b
+second C from b+C pairs: ['r']
+choice: r
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 12, syllable 0
+rule = vc
+
+choice: e
+C from e+C pairs: []
+choice: b
+
+line 12, syllable 1
+rule = cvvc
+
+choice: k
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 12, syllable 2
+rule = ccvvc
+
+first C & first C from C+C pairs: ['b']
+choice: b
+second C from b+C pairs: ['r']
+choice: r
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 14, syllable 0
+rule = ccvvc
+
+first C & first C from C+C pairs: ['b']
+choice: b
+second C from b+C pairs: ['r']
+choice: r
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 14, syllable 1
+rule = ccvvc
+
+first C & first C from C+C pairs: ['b']
+choice: b
+second C from b+C pairs: ['r']
+choice: r
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 14, syllable 2
+rule = ccvvc
+
+first C & first C from C+C pairs: ['b']
+choice: b
+second C from b+C pairs: ['r']
+choice: r
+first V from V+V pairs: ['e', 'a']
+choice: e
+second V from e+V pairs: ['a']
+choice: a
+C from a+C pairs: ['k']
+choice: k
+
+line 16, syllable 0
+rule = cvvc
+
+choice: t
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 16, syllable 1
+rule = ccvvc
+
+first C & first C from C+C pairs: ['b']
+choice: b
+second C from b+C pairs: ['r']
+choice: r
+first V from V+V pairs: ['e', 'a']
+choice: a
+second V from a+V pairs: ['U']
+choice: U
+C from U+C pairs: ['n']
+choice: n
+
+line 16, syllable 2
+rule = vc
+
+choice: I
+C from I+C pairs: ['t']
+choice: t
 

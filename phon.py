@@ -27,7 +27,7 @@ for ln in range(len(verse)):
   for lt in range(len(verse[ln])):
     if verse[ln][lt]!='-' and verse[ln][lt] in rhymes.keys(): rule=random.choice([rl for rl in set(rules.split('.')) if str('v'*len(rhymes[verse[ln][lt]])) in rl])
     elif verse[ln][lt]==' ':
-      phonemes+='}\\vskip 1em\n\n'
+      phonemes+='}\n'
       break
     else: rule=random.sample(set(rules.split('.')),1)[0]
     ct=set(C)
@@ -100,7 +100,7 @@ for ln in range(len(verse)):
           elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
     log+='\n\n'
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
-    elif ln<len(verse)-1: phonemes+='}\\\n\n'
+    elif ln<len(verse)-1: phonemes+='}\\vskip 1.4em\n'
 with open(sys.argv[1]+'.tex','w') as temp:
   temp.write('\\font\ipa=tipa17 scaled \magstep3 \\font\\acc=tipa17\n')
   for u,h in accents.items(): temp.write('\def\\'+u+'#1{{\\acc\\accent"'+h+' #1}}'+'\n')
