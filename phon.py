@@ -3,7 +3,7 @@ import sys,os,random
 consonants={'p':'70','t':'74',':t':'FA','c':'63','k':'6B','q':'71','P':'50','b':'62','d':'64',':d':'E3','textbardotlessj':'E9','g':'67',';G':'E5','m':'6D','M':'4D','n':'6E',':n':'EF','textltailn':'F1','N':'4E',';N':'F0',';B':'E0','r':'72',';R':'F6','R':'52',':r':'F3','F':'46','f':'66','T':'54','s':'73','S':'53',':s':'F9',':c':'E7','x':'78','X':'58','textcrh':'E8','h':'68','B':'42','v':'76','D':'44','z':'7A','Z':'5A','J':'4A','G':'47','K':'43','Q':'51','H':'48','textbeltl':'EC','textlyoghlig':'D0','V':'56','*r':'F4',':R':'F5','j':'6A','textturnmrleg':'EE','l':'6C',':l':'ED','L':'4C',';L':'CF','w':'77'}
 vowels={'i':'69','y':'79','1':'31','O':'30','W':'57','u':'75','I':'49','Y':'59','U':'55','e':'65',':o':'F8','9':'39','8':'38','7':'37','o':'6F','@':'40','E':'45','oe':'F7','3':'33','textcloseepsilon':'C5','2':'32','0':'4F','5':'35','ae':'E6','OE':'D7','a':'61','A':'41','6':'36'}
 suprasegmentals={':':'3A',';':'3B','rh':'7E'}
-accents={'u':'08','thh':'05','th':'01','tm':'09','tl':'00','tll':'0D'}
+#accents={'u':'08','thh':'05','th':'01','tm':'09','tl':'00','tll':'0D'}
 morphing={'l','r','m','n','N'}
 glides={'h','j','w'}
 rhymes={}
@@ -12,6 +12,7 @@ V=set()
 with open(sys.argv[1]) as source: lines=map(lambda x: x.rstrip(), source.readlines())
 cypher=' . '.join(lines).split(' ')
 verse=map(lambda x: ''.join([y for y in x if y!=' ']).split('.'), lines)
+print(verse)
 rules=''
 for p in cypher:
   if p in consonants.keys():
@@ -25,7 +26,7 @@ phonemes=''
 for ln in range(len(verse)):
   if verse[ln][0]!=' ': phonemes+='\centerline{'
   else:
-    phonemes+='\\vskip 1.4em\n'
+    phonemes+='\\bigskip\n'
     break
   for lt in range(len(verse[ln])):
     core=''.join([cr for cr in verse[ln][lt] if cr not in C])
@@ -34,6 +35,7 @@ for ln in range(len(verse)):
     ct=set(C)
     vt=set(V)
     pr=''
+    syll=[]
     for d in range(len(rule)):
       if rule[d]=='c':
         if d+1<len(rule) and rule[d+1]=='c':
@@ -74,16 +76,28 @@ for ln in range(len(verse)):
           vow=rhymes[core][0]
         pr=vow
         if vow in vt: vt.remove(vow)
-      if pr!='':
-        if '/' not in pr: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[pr]
-        else:
-          va=pr.split('/')
-          if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
-          elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
+        
+      if pr!='': syll.append(pr)
+    
+    for v in verse:
+      if ''.join(syll) in v:
+        print('match: '+''.join(syll))
+        phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
+
+    for phon in syll:
+      if '/' not in phon: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[phon]
+      else:
+        va=phon.split('/')
+        if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
+        #elif va[1] in accents.keys(): phonemes+='\\'+va[1]+'{\ipa\char"'+vowels[va[0]]+'}'
+    
+    for v in verse:
+      if ''.join(syll) in v: phonemes+='\pdfcolorstack\match pop{}'
+          
     if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
-    elif ln<len(verse)-1: phonemes+='}\\vskip 1.4em\n'
+    elif ln<len(verse)-1: phonemes+='}\\bigskip\n'
 with open(sys.argv[1]+'.tex','w') as temp:
-  temp.write('\\font\ipa=tipa17 scaled \magstep3 \\font\\acc=tipa17\n')
-  for u,h in accents.items(): temp.write('\def\\'+u+'#1{{\\acc\\accent"'+h+' #1}}'+'\n')
+  temp.write('\chardef\match=\pdfcolorstackinit page direct{0 g} \\font\ipa=tipa17 \pdfpagewidth 5.5in \pdfpageheight 8.5in \hsize 4.5in \\vsize 7.25in \hoffset -0.5in \\voffset -0.75in\n') #\\font\\acc=tipa10
+  #for u,h in accents.items(): temp.write('\def\\'+u+'#1{{\\acc\\accent"'+h+' #1}}'+'\n')
   temp.write('\\null\\vfill\n'+phonemes+'}\\bye')
 os.system('pdftex '+sys.argv[1]+'.tex')
