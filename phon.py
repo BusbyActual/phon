@@ -9,23 +9,20 @@ glides={'h','j','w'}
 class page:
   
   def __init__(self):
-    with open(sys.argv[1]) as source: self.lines=map(lambda x: x.rstrip(), source.readlines())
-  
-    self.cypher=' . '.join(lines).split(' ')
-    self.sylbs=set(''.join(cypher).split('.'))
-    self.verse=map(lambda x: ''.join([y for y in x if y!=' ']).split('.'), lines)
+    with open(sys.argv[1]) as source:
+      lines=map(lambda x: x.rstrip(), source.readlines())
+      self.cypher=' . '.join(lines).split(' ')
+      self.sylbs=set(''.join(self.cypher).split('.'))
+      self.verse=map(lambda x: ''.join([y for y in x if y!=' ']).split('.'), lines)
+
     
-  def setup(self):
-    
-    self.rhymes={}
-    self.phonemes='\\null\\vfill\n'
     self.rules=''
-    
     self.C=set()
     self.V=set()
+    self.matching=set()
     
     for c in self.cypher:
-      if c in self.consonants.keys():
+      if c in consonants.keys():
         self.C.add(c)
         self.rules+='c'
       elif c=='.': self.rules+=c
@@ -35,41 +32,43 @@ class page:
     
   
   def compose(self):
-    
-    setup()
+
+    syllables=[]
+    rhymes={}
+    phonemes='\\null\\vfill\n'
+    f=0
     
     for ln in range(len(self.verse)):
       
-      self.phonemes+='\centerline{'
+      phonemes+='\centerline{'
       
       for lt in range(len(self.verse[ln])):
         
+        if lt>0: phonemes+='\ipa\char"2E'
+        
         nucleus=''.join([ph for ph in self.verse[ln][lt] if ph not in self.C])
-        if nucleus in self.rhymes.keys(): rule=random.choice([rl for rl in set(self.rules.split('.')) if len(self.rhymes[nucleus])==len([pt for pt in rl if pt=='v'])])
+        if nucleus in rhymes.keys(): rule=random.choice([rl for rl in set(self.rules.split('.')) if len(rhymes[nucleus])==len([pt for pt in rl if pt=='v'])])
         else: rule=random.sample(set(self.rules.split('.')),1)[0]
         
         pr=''
         syll=[]
         
-        for d in range(len(rule)):
+        while len(syll)<len(rule):
           
-          if rule[d]=='c':
-            if d+1<len(rule) and rule[d+1]=='c':
-              
+          if rule[len(syll)]=='c':
+            
+            if len(syll)+1<len(rule) and rule[len(syll)+1]=='c':
               pre=[ph[1] for ph in enumerate(self.cypher) if ph[0]+1<len(self.cypher) and ph[1] in self.C and self.cypher[ph[0]+1] in self.C]
-              con = randpm.choice([ph for ph in [p for p in pre if p not in syll] and ph not in glides if d>0 else morphing])
-              
-              #if d==0:
-              #  con=random.choice([pc for pc in pre if pc not in morphing]) # will be glides if d>0 otherwise morphing
-              #else: con=random.choice([pc for pc in pre if pc not in glides])
+              if len(syll)>0: con=randpm.choice([ph for ph in pre if ph not in glides])
+              else: con=random.choice(pre)
               
             elif pr in self.C:
               try:
-                pre=[cypher[ph[0]+1] for ph in enumerate(self.cypher) if ph[1]==pr and ph[0]+1<len(self.cypher) and self.cypher[ph[0]+1] in self.C]
-                con=random.choice(pre) if d<len(rule)-1 else random.choice([ph for ph in [p for p in pre if p not in syll] if ph not in morphing])
+                pre=[self.cypher[ph[0]+1] for ph in enumerate(self.cypher) if ph[1]==pr and ph[0]+1<len(self.cypher) and self.cypher[ph[0]+1] in self.C]
+                con=random.choice(pre) if len(syll)<len(rule)-1 else random.choice([ph for ph in pre if ph not in morphing])
               except IndexError: con=''
               
-            elif d!=0:
+            elif len(syll)!=0:
               try:
                 pre=[ph[1] for ph in enumerate(self.cypher) if ph[1] in self.C-glides and self.cypher[ph[0]-1]==pr]
                 con=random.choice([p for p in pre if p not in syll])
@@ -80,56 +79,58 @@ class page:
             pr=con
             
           else:
-            if d+1<len(rule) and rule[d+1]=='v':
-              pre=[ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in self.V and cypher[ph[0]+1] in self.V]
-              if core not in rhymes.keys(): rhymes[core]=[random.choice(pre)]
-              vow=rhymes[core][0]
+            
+            if len(syll)+1<len(rule) and rule[len(syll)+1]=='v':
+              pre=[ph[1] for ph in enumerate(self.cypher) if ph[0]+1<len(self.cypher) and ph[1] in self.V and self.cypher[ph[0]+1] in self.V]
+              if nucleus not in rhymes.keys(): rhymes[nucleus]=[random.choice([p for p in pre if p not in syll])]
+              vow=rhymes[nucleus][0]
+              
             elif pr in self.V:
               try:
-                pre=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[1]==pr and ph[0]+1<len(cypher) and cypher[ph[0]+1] in self.V]
-                if len(rhymes[core])==1: rhymes[core].append(random.choice(pre))
-                vow=rhymes[core][1]
+                pre=[self.cypher[ph[0]+1] for ph in enumerate(self.cypher) if ph[1]==pr and ph[0]+1<len(self.cypher) and self.cypher[ph[0]+1] in self.V]
+                if len(rhymes[nucleus])==1: rhymes[nucleus].append(random.choice([p for p in pre if p not in syll]))
+                vow=rhymes[nucleus][1]
               except IndexError: vow=''
+              
             else:
-              if core not in rhymes.keys():
-                try: rhymes[core]=[random.choice([cc[1] for cc in enumerate(cypher) if cc[1] in self.V and cypher[cc[0]-1]==pr])]
-                except IndexError: rhymes[core]=[random.choice(list(self.V))]
-              vow=rhymes[core][0]
+              if nucleus not in rhymes.keys():
+                try: rhymes[nucleus]=[random.choice([cc[1] for cc in enumerate(self.cypher) if cc[1] in self.V and self.cypher[cc[0]-1]==pr])]
+                except IndexError: rhymes[nucleus]=random.sample(self.V,1)[0]
+              vow=rhymes[nucleus][0]
+              
             pr=vow
+
           if pr!='': syll.append(pr)
+            
         sb=''.join(syll)
-        if sb in sylbs:
+        syllables.append(sb)
+
+        if sb in self.sylbs:
           phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
-          matching.add(sb)
-          print(str(_m))
-        for phon in syll:
-          if '/' not in phon: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[phon]
+          self.matching.add(sb)
+        
+        for s in range(len(syll)):
+          if '/' not in syll[s]: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[syll[s]]
           else:
-            va=phon.split('/')
+            va=syll[s].split('/')
             if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
-        if sb in sylbs: phonemes+='\pdfcolorstack\match pop{}'
-        if lt<len(verse[ln])-1: phonemes+='\ipa\char"2E'
-        elif ln<len(verse)-1: phonemes+='}\\bigskip\n'
-    if len(matching)>_m:
-      temp.write(phonemes+'}\n\\vfill\eject\n')
-      _m=len(matching)
-  
+        
+        if sb in self.sylbs: phonemes+='\pdfcolorstack\match pop{}'
+        
+      if ln<len(self.verse)-1: phonemes+='}\\bigskip\n'
+        
+    if len([s for s in syllables if s in self.sylbs])>0: return phonemes+'}\n\\vfill\eject\n'
+    else: return ''
 
 pg=page()
 
 def main():
   
   temp=open(sys.argv[1]+'.tex','w')
-  temp.write('\\footline={\\tenrm\it \hfill\\folio\hfill}\chardef\match=\pdfcolorstackinit page direct{0 g} \\font\ipa=tipa17 \pdfpagewidth 5.5in \pdfpageheight 8.5in \hsize 4.5in \\vsize 7in \hoffset -0.5in \\voffset -0.375in\n')
-
-  matching=set()
+  temp.write('\\footline={\\tenrm\it '+time.strftime("%d.%m.%y")+'\hfill\\folio\hfill'+time.strftime("%H.%M.%S")+'}\chardef\match=\pdfcolorstackinit page direct{0 g} \\font\ipa=tipa17 \pdfpagewidth 5.5in \pdfpageheight 8.5in \hsize 4.5in \\vsize 7in \hoffset -0.5in \\voffset -0.375in\n')
   
-  print(str(len(matching))+' '+str(len(pg.sylbs)))
-  
-  while True:
-    if len(matching-pg.sylbs)>0:
-      pg.compose()
-    else: break
+  while pg.matching!=pg.sylbs:
+    temp.write(pg.compose())
   
   temp.write('\\bye')
   temp.close()
