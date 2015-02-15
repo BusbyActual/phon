@@ -89,11 +89,11 @@ class page:
             if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
         if sb in self.sylbs: phonemes+='\pdfcolorstack\match pop{}'
       if ln<len(self.verse)-1: phonemes+='}\\bigskip\n'
-    if len([s for s in syllables if s in self.sylbs])>0: return phonemes+'}\n\\vfill\eject\n'
+    if len([s for s in syllables if s in self.sylbs])>0: return phonemes+'}\n\\vfil\eject\n'
     else: return ''
 pg=page()
 temp=open(sys.argv[1]+'.tex','w')
-temp.write('\chardef\match=\pdfcolorstackinit page direct{0 g} \\font\ipa=tipa17 \\font\\title=cmr17 \parindent 0pt \pdfpagewidth 5truein \pdfpageheight 7truein \pdfhorigin 1truein \pdfvorigin 1truein \hsize 3.5truein \\vsize 5truein \hoffset -0.25truein \\voffset -0.5truein \pdfcompresslevel=0 \n\\null\\bigskip\\title\pdfcolorstack\match push{1 0 0 rg}CIPHER\pdfcolorstack\match pop{} '+time.strftime("%m.%y")+'\\nopagenumbers\\vfill\eject\n\\null\supereject\n\pageno=1\\footline={\\tenrm\ifodd\pageno\hfill\\folio\else\\folio\hfill\\fi}')
+temp.write('\chardef\match=\pdfcolorstackinit page direct{0 g} \\font\ipa=tipa17 \\font\\title=cmr17 \parindent 0pt \pdfpagewidth 5truein \pdfpageheight 7truein \pdfhorigin 1truein \pdfvorigin 1truein \hsize 3.5truein \\vsize 5truein \hoffset -0.25truein \\voffset -0.5truein \pdfcompresslevel=0\n\\null\\vfill\\title\pdfcolorstack\match push{1 0 0 rg}CIPHER\pdfcolorstack\match pop{} / \\hbox to 0.5in{\hfill\\vbox to 2em{\hsize 0.5in\\vrule depth 1.5em width 0pt\\vfill '+time.strftime("%m.%y")+'}}\n\\nopagenumbers\\vfill\eject\n\\null\\vfill\eject\n\pageno=1\\footline={\\tenrm\ifodd\pageno\hfill\\folio\else\\folio\hfill\\fi}')
 while pg.matching!=pg.sylbs: temp.write(pg.compose())
 temp.write('\\bye')
 temp.close()
