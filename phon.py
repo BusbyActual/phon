@@ -89,7 +89,7 @@ class page:
             if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
         if sb in self.sylbs: phonemes+='\pdfcolorstack\match pop{}'
       if ln<len(self.verse)-1: phonemes+='}\\bigskip\n'
-    if len([s for s in syllables if s in self.sylbs])>0: return phonemes+'}\n\\vfil\eject\n'
+    if len([s for s in syllables if s in self.sylbs])>0: return phonemes+'}\n\\vfill\eject\n'
     else: return ''
 pg=page()
 temp=open(sys.argv[1]+'.tex','w')
