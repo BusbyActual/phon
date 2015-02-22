@@ -16,6 +16,7 @@ class page:
     self.C=set()
     self.V=set()
     self.matching=set()
+    self.sheet=0
     for c in self.cypher:
       if c in consonants.keys():
         self.C.add(c)
@@ -27,9 +28,9 @@ class page:
   def compose(self):
     syllables=[]
     rhymes={}
-    phonemes='\\null\\vfill\n'
+    phonemes='\hbox to 162mm{\hsize=69mm' if self.sheet==0 else ''
+    phonemes+='\\vbox to 100mm{\\vfill'
     for ln in range(len(self.verse)):
-      phonemes+='\ifodd\pageno\else\hfill\\fi{'
       for lt in range(len(self.verse[ln])):
         if lt>0: phonemes+='\ipa\char"2E'
         nucleus=''.join([p for p in self.verse[ln][lt] if p not in consonants.keys()])
@@ -88,13 +89,21 @@ class page:
             va=s.split('/')
             if va[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[va[0]]+'\ipa\char"'+suprasegmentals[va[1]]
         if sb in self.sylbs: phonemes+='\pdfcolorstack\match pop{}'
-      if ln<len(self.verse)-1: phonemes+='}\\bigskip\n'
-    if len([s for s in syllables if s in self.sylbs])>0: return phonemes+'}\n\\vfill\eject\n'
+      if ln<len(self.verse)-1: phonemes+='\medskip'
+    if len([s for s in syllables if s in self.sylbs])>0:
+      if self.sheet==0:
+        self.sheet=1
+        return phonemes+'\\vfill}\hfill'
+      else:
+        self.sheet=0
+        return phonemes+'\\vfill}}\eject\n'
     else: return ''
 pg=page()
-temp=open(sys.argv[1]+'.tex','w')
-temp.write('\chardef\match=\pdfcolorstackinit page direct{0 g} \\font\ipa=tipa17 \\font\\title=cmr17 \parindent 0pt \pdfpagewidth 5truein \pdfpageheight 7truein \pdfhorigin 1truein \pdfvorigin 1truein \hsize 3.5truein \\vsize 5truein \hoffset -0.25truein \\voffset -0.5truein \pdfcompresslevel=0\n\\null\\vfill\\title\pdfcolorstack\match push{1 0 0 rg}CIPHER\pdfcolorstack\match pop{} / \\hbox to 0.5in{\hfill\\vbox to 2em{\hsize 0.5in\\vrule depth 1.5em width 0pt\\vfill '+time.strftime("%m.%y")+'}}\n\\nopagenumbers\\vfill\eject\n\\null\\vfill\eject\n\pageno=1\\footline={\\tenrm\ifodd\pageno\hfill\\folio\else\\folio\hfill\\fi}')
-while pg.matching!=pg.sylbs: temp.write(pg.compose())
+temp = open(sys.argv[1]+'.tex','w')
+temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa12\\font\\title=cmr17\pdfpagewidth 210mm\pdfpageheight 148mm\pdfhorigin 24mm\pdfvorigin 16mm\hsize 162mm\\vsize 100mm\n')
+while True:
+  temp.write(pg.compose())
+  if pg.matching==pg.sylbs and pg.sheet==0: break
 temp.write('\\bye')
 temp.close()
 os.system('pdftex '+sys.argv[1]+'.tex')
