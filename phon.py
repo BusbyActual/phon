@@ -13,8 +13,7 @@ rules=''
 C=set()
 V=set()
 matching=set()
-lit=['\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa12\\font\\title=cmr17\pdfpagewidth 210mm\pdfpageheight 148mm\pdfhorigin 24mm\pdfvorigin 16mm\hsize 162mm\\vsize 100mm\n']
-sheet=0
+lit=['\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa12\\font\\title=cmr17\pdfpagewidth 210mm\pdfpageheight 148mm\pdfhorigin 12mm\pdfvorigin 16mm\hsize 162mm\\vsize 100mm\n']
 for c in cypher:
   if c in consonants.keys():
     C.add(c)
@@ -26,7 +25,7 @@ for c in cypher:
 while matching!=set(''.join(cypher).split('.')):
   syllables=[]
   rhymes={}
-  phonemes='\hbox to 162mm{\hsize=69mm' if len(lit)%2!=0 else ''
+  phonemes='\hbox to 186mm{\hsize=81mm' if len(lit)%2!=0 else ''
   phonemes+='\\vbox to 100mm{\\vfill'
   for ln in range(len(verse)):
     for lt in range(len(verse[ln])):
@@ -41,9 +40,13 @@ while matching!=set(''.join(cypher).split('.')):
       while len(syll)<len(rule):
         if rule[len(syll)]=='c':
           if len(syll)+1<len(rule) and rule[len(syll)+1]=='c':
-            pre=[ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in ct and cypher[ph[0]+1] in ct]
-            if len(syll)>0: con=random.choice([ph for ph in pre if ph not in glides])
-            else: con=random.choice([ph for ph in pre if ph not in morphing])
+            if pr in C:
+              try: con=random.choice([ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in ct and cypher[ph[0]+1]=='r'])
+              except IndexError: con=''
+            else:
+              pre=[ph[1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1] in ct and cypher[ph[0]+1] in ct]
+              if len(syll)>0: con=random.choice([ph for ph in pre if ph not in glides])
+              else: con=random.choice([ph for ph in pre if ph not in morphing])
           elif pr in C:
             try:
               pre=[cypher[ph[0]+1] for ph in enumerate(cypher) if ph[0]+1<len(cypher) and ph[1]==pr and cypher[ph[0]+1] in ct]
@@ -70,7 +73,7 @@ while matching!=set(''.join(cypher).split('.')):
             except IndexError: vow=''
           else:
             if nucleus not in rhymes.keys():
-              try: rhymes[nucleus]=[random.choice([cc[1] for cc in enumerate(cypher) if cc[1] in vt and cypher[cc[0]-1]==pr])]
+              try: rhymes[nucleus]=[random.choice([ph[1] for ph in enumerate(cypher) if ph[1] in vt and cypher[ph[0]-1]==pr])]
               except IndexError: rhymes[nucleus]=[random.sample(vt,1)[0]]
             vow=rhymes[nucleus][0]
           pr=vow
