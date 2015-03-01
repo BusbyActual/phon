@@ -1,4 +1,3 @@
-# match source syllables in order
 #!/usr/bin/env python
 import sys,os,random,time
 consonants={'p':'70','t':'74',':t':'FA','c':'63','k':'6B','q':'71','P':'50','b':'62','d':'64',':d':'E3','textbardotlessj':'E9','g':'67',';G':'E5','m':'6D','M':'4D','n':'6E',':n':'EF','textltailn':'F1','N':'4E',';N':'F0',';B':'E0','r':'72',';R':'F6','R':'52',':r':'F3','F':'46','f':'66','T':'54','s':'73','S':'53',':s':'F9',':c':'E7','x':'78','X':'58','textcrh':'E8','h':'68','B':'42','v':'76','D':'44','z':'7A','Z':'5A','J':'4A','G':'47','K':'43','Q':'51','H':'48','textbeltl':'EC','textlyoghlig':'D0','V':'56','*r':'F4',':R':'F5','j':'6A','textturnmrleg':'EE','l':'6C',':l':'ED','L':'4C',';L':'CF','w':'77'}
@@ -14,6 +13,7 @@ rules=''
 C=set()
 V=set()
 matching=[]
+switch=[0,-1]
 lit=['\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa12\\font\\title=cmr17\pdfpagewidth 210mm\pdfpageheight 148mm\pdfhorigin 12mm\pdfvorigin 16mm\hsize 162mm\\vsize 100mm\n']
 for c in cypher:
   if c in consonants.keys():
@@ -81,19 +81,23 @@ while True:
           pr=vow
         syll.append(pr)
       sb=''.join(syll)
-      if len(sylbs)>0 and sb==sylbs[0] and match!=True: phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
+      if len(sylbs)>0 and sb==sylbs[switch[0]] and match!=True: phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
       for s in [s for s in syll if s!='']:
         if '/' not in s: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[s]
         elif s.split('/')[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[s.split('/')[0]]+'\ipa\char"'+suprasegmentals[s.split('/')[1]]
-      if len(sylbs)>0 and sb==sylbs[0] and match!=True:
+      if len(sylbs)>0 and sb==sylbs[switch[0]] and match!=True:
         phonemes+='\pdfcolorstack\match pop{}'
         matching.append(sb)
         match=True
     if ln<len(verse)-1: phonemes+='\medskip'
   if len(sylbs)==0: break
-  elif len(matching)>0 and matching[len(matching)-1]==sylbs[0]:
-    sylbs.pop(0)
-    if len(lit)%2!=0: lit.append(phonemes+'\\vfill}\hfill')
+  elif len(matching)>0 and matching[len(matching)-1]==sylbs[switch[0]]:
+    print(sylbs[switch[0]])
+    sylbs.pop(switch[0])
+    print(switch[0])
+    if len(lit)%2!=0:
+      lit.append(phonemes+'\\vfill}\hfill')
+      switch=switch[::-1]
     else: lit.append(phonemes+'\\vfill}}\eject\n')
 if len(lit)%2==0: lit.append('}\eject\n')
 with open(sys.argv[1]+'.tex','w') as temp: temp.write(''.join(lit)+'\\bye')
