@@ -14,7 +14,7 @@ C=set()
 V=set()
 matching=[]
 switch=[0,-1]
-lit=['\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa12\\font\\title=cmr17\pdfpagewidth 210mm\pdfpageheight 148mm\pdfhorigin 12mm\pdfvorigin 16mm\hsize 162mm\\vsize 100mm\n']
+lit=['\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa12\\font\\title=cmr17\pdfpagewidth 210mm\pdfpageheight 148mm\pdfhorigin 12mm\pdfvorigin 16mm\hsize 162mm\\vsize 100mm\\null\\vfill\eject\n']
 for c in cypher:
   if c in consonants.keys():
     C.add(c)
@@ -23,8 +23,8 @@ for c in cypher:
   else:
     V.add(c)
     rules+='v'
+m=len(sylbs)
 while True:
-  match=False
   rhymes={}
   phonemes='\hbox to 186mm{\hsize=81mm' if len(lit)%2!=0 else ''
   phonemes+='\\vbox to 100mm{\\vfill'
@@ -81,24 +81,21 @@ while True:
           pr=vow
         syll.append(pr)
       sb=''.join(syll)
-      if len(sylbs)>0 and sb==sylbs[switch[0]] and match!=True: phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
+      if len(sylbs)>0 and sb==sylbs[switch[0]]: phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
       for s in [s for s in syll if s!='']:
         if '/' not in s: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[s]
         elif s.split('/')[1] in suprasegmentals.keys(): phonemes+='\ipa\char"'+vowels[s.split('/')[0]]+'\ipa\char"'+suprasegmentals[s.split('/')[1]]
-      if len(sylbs)>0 and sb==sylbs[switch[0]] and match!=True:
+      if len(sylbs)>0 and sb==sylbs[switch[0]]:
         phonemes+='\pdfcolorstack\match pop{}'
-        matching.append(sb)
-        match=True
+        sylbs.pop(switch[0])
     if ln<len(verse)-1: phonemes+='\medskip'
-  if len(sylbs)==0: break
-  elif len(matching)>0 and matching[len(matching)-1]==sylbs[switch[0]]:
-    print(sylbs[switch[0]])
-    sylbs.pop(switch[0])
-    print(switch[0])
+  if len(sylbs)<m:
+    m=len(sylbs)
     if len(lit)%2!=0:
       lit.append(phonemes+'\\vfill}\hfill')
       switch=switch[::-1]
     else: lit.append(phonemes+'\\vfill}}\eject\n')
+  elif len(sylbs)==0: break
 if len(lit)%2==0: lit.append('}\eject\n')
 with open(sys.argv[1]+'.tex','w') as temp: temp.write(''.join(lit)+'\\bye')
 os.system('pdftex '+sys.argv[1]+'.tex')
