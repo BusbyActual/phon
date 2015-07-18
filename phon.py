@@ -4,11 +4,15 @@ consonants={'p':'70','t':'74',':t':'FA','c':'63','k':'6B','q':'71','P':'50','b':
 vowels={'i':'69','y':'79','1':'31','O':'30','W':'57','u':'75','I':'49','Y':'59','U':'55','e':'65',':o':'F8','9':'39','8':'38','7':'37','o':'6F','@':'40','E':'45','oe':'F7','3':'33','textcloseepsilon':'C5','2':'32','0':'4F','5':'35','ae':'E6','OE':'D7','a':'61','A':'41','6':'36'}
 with open(sys.argv[1]) as source: verse=map(lambda x: x.rstrip().split(' '), source.readlines())
 syllables=' '.join([' '.join(s) for s in verse]).split(' ')
+t=str(len(syllables))
 match=False
 lit=[]
 while True:
-  phonemes=''
+  phonemes='\\null\\vfill'
+  n=[]
+  count=0
   for ln in range(len(verse)):
+    phonemes+=''
     for sn in range(len(verse[ln])):
       if sn>0: phonemes+='\ipa\char"2E'
       syll=[]
@@ -26,18 +30,23 @@ while True:
         except IndexError:
           phon=''
           syll=[]
-      sb=''.join(syll)
-      if len(syllables)>0 and sb==syllables[0]: phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
-      for s in syll: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[s]
-      if len(syllables)>0 and sb==syllables[0]:
+        sb=''.join(syll)
+        if sb in syllables and count!=' '.join([' '.join(s) for s in verse]).split(' ').index(sb): syll=[]
+      if sb not in syllables and sb in ' '.join([' '.join(s) for s in verse]).split(' '): syll=[]
+      if len(syllables)>0 and sb in syllables: phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
+      if len(syll)>0:
+        for s in syll: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[s]
+      else: phonemes+='\ipa\char"5B'+'\quad'*len(sb)+'\ipa\char"5D'
+      if len(syllables)>0 and sb in syllables:
         phonemes+='\pdfcolorstack\match pop{}'
-        syllables.pop(0)
+        n.append(str(' '.join([' '.join(s) for s in verse]).split(' ').index(syllables.pop(syllables.index(sb)))+1))
         match=True
-    phonemes+='\medskip'
+      count+=1
+    phonemes+='\\bigskip'
   if match==True:
     match=False
-    lit.append(phonemes+'\\vfill')
+    lit.append(phonemes+'\\vfill\\footline={\hfill\\tenrm\it '+','.join(n)+' / '+t+'}')
   elif len(syllables)==0: break
 temp=open(sys.argv[1]+'.tex','w')
-temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa12\n'+'\eject'.join(lit)+'\\bye')
+temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa17\n'+'\eject'.join(lit)+'\\bye')
 temp.close
