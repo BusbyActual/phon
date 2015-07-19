@@ -36,7 +36,7 @@ while True:
       if sb in [s[1] for s in syllables] and match==False: phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
       if len(syll)>0:
         for s in syll: phonemes+='\ipa\char"'+dict(consonants.items()+vowels.items())[s]
-      else: phonemes+='\ipa\char"5B'+'\quad'*len(sb)+'\ipa\char"5D'
+      else: phonemes+='\quad'*len(sb)
       if sb in [s[1] for s in syllables] and match==False:
         phonemes+='\pdfcolorstack\match pop{}'
         n.append(syllables.pop(syllables.index((count,sb)))[0])
@@ -45,6 +45,6 @@ while True:
     phonemes+='\\bigskip'
   if match==True:
     match=False
-    lit.append(phonemes+'\\vfill\\footline={\hfill\\tenrm\it '+','.join(map(str,n))+' / '+str(len(' '.join([' '.join(s) for s in verse]).split(' ')))+'}')
+    lit.append(phonemes+'\\vfill\\footline={\hfill\\tenrm\it '+','.join(map(str,n))+' / '+str(len(' '.join([' '.join(s) for s in verse]).split(' ')))+'}\eject')
   elif len(syllables)==0: break
-with open(sys.argv[1]+'.tex','w') as temp: temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa17\pdfpagewidth 216 true mm\pdfpageheight 356 true mm\pdfhorigin 25.4 true mm\pdfvorigin 25.4 true mm\hsize 165.2 true mm\\vsize 305.2 true mm\n'+'\eject'.join(lit)+'\\bye')
+with open(sys.argv[1]+'.tex','w') as temp: temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa17\pdfpagewidth 216 true mm\pdfpageheight 356 true mm\pdfhorigin 25.4 true mm\pdfvorigin 25.4 true mm\hsize 165.2 true mm\\vsize 305.2 true mm\n'+'\n'.join(lit)+'\\bye')
