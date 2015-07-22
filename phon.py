@@ -5,12 +5,12 @@ vowels={'301':'151','302':'145','303':'105','304':'141','305':'101','306':'117',
 with open(sys.argv[1]) as source: verse=map(lambda x: x.rstrip().split(' '), source.readlines())
 numbers=[[o[i:i+3] for i in range(0,len(o),3)] for o in ' '.join([' '.join(s) for s in verse]).split(' ')]
 syllables=list(enumerate([''.join(o) for o in numbers],start=1))
-match=False
 lit=[]
-while True:
+while len(syllables)>0:
   phonemes='\\null\\vfill'
   n=[]
   count=1
+  match=False
   for ln in range(len(verse)):
     for sn in range(len(verse[ln])):
       if sn>0: phonemes+='\ipa\char"2E'
@@ -30,22 +30,15 @@ while True:
         except IndexError:
           phon=''
           syll=[]
-        if len(syll)==len(source):
-          sb=''.join(syll)
-          if sb in [s[1] for s in syllables] and len([s for s in syllables if s[0]==count and s[1]==sb])==0: sb=''
-      count+=1
-      if sb not in [s[1] for s in syllables] and sb in [''.join(o) for o in numbers] or sb in [s[1] for s in syllables] and match==True: sb=''
+      sb=''.join(syll)
+      if sb not in [s[1] for s in syllables] and sb in [''.join(o) for o in numbers] or sb in [s[1] for s in syllables] and len([s for s in syllables if s[0]==count and s[1]==sb])==0 or sb in [s[1] for s in syllables] and match==True: sb=''
       if sb in [s[1] for s in syllables] and match==False: phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
-      if sb!='':
-        for s in syll: phonemes+="\ipa\char'"+dict(consonants.items()+vowels.items())[s]
-      else: phonemes+='\enskip'*len(syll)
+      for s in syll: phonemes+="\ipa\char'"+dict(consonants.items()+vowels.items())[s] if sb!='' else '\enskip'
       if sb in [s[1] for s in syllables] and match==False:
         phonemes+='\pdfcolorstack\match pop{}'
-        n.append(syllables.pop(syllables.index((count-1,sb)))[0])
+        n.append(syllables.pop(syllables.index((count,sb)))[0])
         match=True
+      count+=1
     phonemes+='\\bigskip'
-  if match==True:
-    match=False
-    lit.append(phonemes+'\\vfill\\footline={\hfill\\tenrm\it '+','.join(map(str,n))+' / '+str(len([''.join(o) for o in numbers]))+'}\eject')
-  elif len(syllables)==0: break
+  if match==True: lit.append(phonemes+'\\vfill\\footline={\hfill\\tenrm\it '+','.join(map(str,n))+' / '+str(len([''.join(o) for o in numbers]))+'}\eject')
 with open(sys.argv[1]+'.tex','w') as temp: temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa17\pdfpagewidth 216 true mm\pdfpageheight 356 true mm\pdfhorigin 25.4 true mm\pdfvorigin 25.4 true mm\hsize 165.2 true mm\\vsize 305.2 true mm\n'+'\n'.join(lit)+'\\bye')
