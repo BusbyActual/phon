@@ -41,4 +41,4 @@ while len(syllables)>0:
       count+=1
     phonemes+='\\bigskip'
   if match==True: lit.append(phonemes+'\\vfill\\footline={\hfill\\tenrm\it '+','.join(map(str,n))+' / '+str(len([''.join(o) for o in numbers]))+'}\eject')
-with open(sys.argv[1]+'.tex','w') as temp: temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa17\pdfpagewidth 216 true mm\pdfpageheight 356 true mm\pdfhorigin 25.4 true mm\pdfvorigin 25.4 true mm\hsize 165.2 true mm\\vsize 305.2 true mm\n'+'\n'.join(lit)+'\\bye')
+with open(sys.argv[1]+'.tex','w') as temp: temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa17\pdfpagewidth 216 true mm\pdfpageheight 356 true mm\pdfhorigin 25.4 true mm\pdfvorigin 25.4 true mm\hsize 165.2 true mm\\vsize 305.2 true mm\n\\null\\vfill\\tentt '+'\\tentt '.join([str(v)[1:-1].replace("'",'').replace(',','')+'\\bigskip' for v in verse])+'\\vfill\eject\n'+'\n'.join(lit)+'\\bye')
