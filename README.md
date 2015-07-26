@@ -1,3 +1,3 @@
 # phon
 
-requires minimum TeXlive-base (pdfTeX) and TIPA packages
+requires Python, TeXlive-base (pdfTeX) and TIPA packages
