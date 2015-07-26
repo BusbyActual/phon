@@ -15,11 +15,12 @@ while len(syllables)>0:
   match=False
   for ln in range(len(verse)):
     phonemes+='\centerline{'
-    phon=''
+    carry=''
     for sn in range(len(verse[ln])):
       if count in morphemes: phonemes+='\enskip'
       elif sn>0 and not phonemes.endswith('\enskip'): phonemes+="\ipa\char'056"
       syll=[]
+      phon=''
       source=[verse[ln][sn][i:i+3] for i in range(0,len(verse[ln][sn]),3)]
       while len(syll)<len(source):
         if source[len(syll)] in consonants.keys():
@@ -29,10 +30,11 @@ while len(syllables)>0:
           if len(syll)==0: pre=[ph[0] for ph in numbers if ph[0] in vowels.keys()]
           elif phon!='': pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in vowels.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in vowels.keys()]
         try:
-          phon=random.choice([p for p in pre if p!=phon])
+          phon=random.choice([p for p in pre if p!=carry])
           syll.append(phon)
         except IndexError: syll=[]
       sb=''.join(syll)
+      carry=syll[-1]
       if sb not in [s[1] for s in syllables] and sb in [''.join(o) for o in numbers] or sb in [s[1] for s in syllables] and len([s for s in syllables if s[0]==count and s[1]==sb])==0 or sb in [s[1] for s in syllables] and match==True:
         sb=''
         if phonemes.endswith("\ipa\char'056"): phonemes=phonemes[:len(phonemes)-13]+'\enskip'
