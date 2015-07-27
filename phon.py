@@ -10,9 +10,9 @@ syllables=list(enumerate([''.join(o) for o in numbers],start=1))
 lit=[]
 while len(syllables)>0:
   phonemes='\\null\\vfill'
-  n=[]
   count=1
   match=False
+  pg=False
   for ln in range(len(verse)):
     phonemes+='\centerline{'
     carry=''
@@ -23,28 +23,34 @@ while len(syllables)>0:
       phon=''
       source=[verse[ln][sn][i:i+3] for i in range(0,len(verse[ln][sn]),3)]
       while len(syll)<len(source):
-        if source[len(syll)] in consonants.keys():
-          if len(syll)==0: pre=[ph[0] for ph in numbers if ph[0] in consonants.keys()]
-          elif phon!='': pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in consonants.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in consonants.keys()]
-        elif source[len(syll)] in vowels.keys():
-          if len(syll)==0: pre=[ph[0] for ph in numbers if ph[0] in vowels.keys()]
-          elif phon!='': pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in vowels.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in vowels.keys()]
-        try:
-          phon=random.choice([p for p in pre if p!=carry])
-          syll.append(phon)
-        except IndexError: syll=[]
+        if match==True: syll=source
+        else:
+          if source[len(syll)] in consonants.keys():
+            if len(syll)==0: pre=[ph[0] for ph in numbers if ph[0] in consonants.keys()]
+            elif phon!='': pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in consonants.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in consonants.keys()]
+          elif source[len(syll)] in vowels.keys():
+            if len(syll)==0: pre=[ph[0] for ph in numbers if ph[0] in vowels.keys()]
+            elif phon!='': pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in vowels.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in vowels.keys()]
+          try:
+            phon=random.choice([p for p in pre if p!=carry])
+            syll.append(phon)
+          except IndexError: syll=[]
       sb=''.join(syll)
       carry=syll[-1]
-      if sb not in [s[1] for s in syllables] and sb in [''.join(o) for o in numbers] or sb in [s[1] for s in syllables] and len([s for s in syllables if s[0]==count and s[1]==sb])==0 or sb in [s[1] for s in syllables] and match==True:
+      if sb not in [s[1] for s in syllables] and sb in [''.join(o) for o in numbers] or sb in [s[1] for s in syllables] and len([s for s in syllables if s[0]==count and s[1]==sb])==0 or (count,sb)==syllables[0] and pg==True:
         sb=''
         if phonemes.endswith("\ipa\char'056"): phonemes=phonemes[:len(phonemes)-13]+'\enskip'
-      if sb in [s[1] for s in syllables] and match==False: phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
-      for s in syll: phonemes+="\ipa\char'"+dict(consonants.items()+vowels.items())[s] if sb!='' else '\enskip'
-      if sb in [s[1] for s in syllables] and match==False:
-        phonemes+='\pdfcolorstack\match pop{}'
-        n.append(syllables.pop(syllables.index((count,sb)))[0])
+      if (count,sb)==syllables[0] and count in morphemes and match==False:
+        phonemes+='\pdfcolorstack\match push{1 0 0 rg}'
         match=True
+      for s in syll: phonemes+="\ipa\char'"+dict(consonants.items()+vowels.items())[s] if sb!='' else '\enskip'
+      if (count,sb)==syllables[0] and match==True:
+        syllables.pop(0)
+        if count+1 in morphemes or count==morphemes[-1]:
+          phonemes+='\pdfcolorstack\match pop{}'
+          match=False
+          pg=True
       count+=1
     phonemes+='}\\bigskip'
-  if match==True: lit.append(phonemes+'\\vfill\\footline={\hfill\\tenrm\it '+','.join(map(str,n))+' / '+str(len([''.join(o) for o in numbers]))+'}\eject')
-with open(sys.argv[1]+'.tex','w') as temp: temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\nopagenumbers\\font\ipa=tipa17\pdfpagewidth 216 true mm\pdfpageheight 356 true mm\pdfhorigin 25.4 true mm\pdfvorigin 25.4 true mm\hsize 165.2 true mm\\vsize 305.2 true mm\n'+'\n'.join(lit)+'\\bye')
+  if pg==True: lit.append(phonemes+'\\vfill\eject')
+with open(sys.argv[1]+'.tex','w') as temp: temp.write('\pdfcompresslevel=0\chardef\match=\pdfcolorstackinit page direct{0 g}\\font\ipa=tipa17\pdfpagewidth 216 true mm\pdfpageheight 356 true mm\pdfhorigin 25.4 true mm\pdfvorigin 25.4 true mm\hsize 165.2 true mm\\vsize 305.2 true mm\n'+'\n'.join(lit)+'\\bye')
