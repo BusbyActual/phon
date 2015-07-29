@@ -15,28 +15,26 @@ while len(syllables)>0:
   pg=False
   for ln in range(len(verse)):
     phonemes+='\centerline{'
-    carry=''
+    phon=''
     for sn in range(len(verse[ln])):
       if count in morphemes: phonemes+='\enskip'
       elif sn>0 and not phonemes.endswith('\enskip'): phonemes+="\char'056"
       syll=[]
-      phon=''
       source=[verse[ln][sn][i:i+3] for i in range(0,len(verse[ln][sn]),3)]
       while len(syll)<len(source):
         if match==True: syll=source
         else:
           if source[len(syll)] in consonants.keys():
             if len(syll)==0: pre=[ph[0] for ph in numbers if ph[0] in consonants.keys()]
-            elif phon!='': pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in consonants.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in consonants.keys()]
+            else: pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in consonants.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in consonants.keys()]
           elif source[len(syll)] in vowels.keys():
             if len(syll)==0: pre=[ph[0] for ph in numbers if ph[0] in vowels.keys()]
-            elif phon!='': pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in vowels.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in vowels.keys()]
+            else: pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in vowels.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in vowels.keys()]
           try:
-            phon=random.choice([p for p in pre if p!=carry])
+            phon=random.choice([p for p in pre if p!=phon]) if phonemes.endswith('056') else random.choice(pre)
             syll.append(phon)
           except IndexError: syll=[]
       sb=''.join(syll)
-      carry=syll[-1]
       if (count,sb) in syllables and pg==True or sb in [s[1] for s in syllables] and (count,sb) not in syllables or sb not in [s[1] for s in syllables] and sb in [''.join(o) for o in numbers]:
         sb=''
         if phonemes.endswith("\char'056"): phonemes=phonemes[:len(phonemes)-9]+'\enskip'
@@ -45,8 +43,9 @@ while len(syllables)>0:
         match=True
       for s in syll: phonemes+="\char'"+dict(consonants.items()+vowels.items())[s] if sb!='' else '\enskip'
       if (count,sb)==syllables[0] and match==True:
-        syllables.pop(0)
-        if count+1 in morphemes or count==morphemes[-1]:
+        sys.stdout.write('\r'+str(syllables.pop(0)[0])+' of '+str(len([''.join(n) for n in numbers])))
+        sys.stdout.flush()
+        if count+1 in morphemes or count>morphemes[-1]:
           phonemes+='\pdfcolorstack\match pop{}'
           match=False
           pg=True
