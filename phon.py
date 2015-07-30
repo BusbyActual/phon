@@ -24,12 +24,7 @@ while len(syllables)>0:
       while len(syll)<len(source):
         if match==True: syll=source
         else:
-          if source[len(syll)] in consonants.keys():
-            if len(syll)==0: pre=[ph[0] for ph in numbers if ph[0] in consonants.keys()]
-            else: pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in consonants.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in consonants.keys()]
-          elif source[len(syll)] in vowels.keys():
-            if len(syll)==0: pre=[ph[0] for ph in numbers if ph[0] in vowels.keys()]
-            else: pre=[ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1>ph.index(phon) and ph[ph.index(phon)+1] in vowels.keys()] if len(syll)+1!=len(source) else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and len(ph)-1==ph.index(phon)+1 and ph[ph.index(phon)+1] in vowels.keys()]
+          pre=[ph[0] for ph in numbers if ph[0] in (consonants.keys() if source[len(syll)] in consonants.keys() else vowels.keys())] if len(syll)==0 else [ph[ph.index(phon)+1] for ph in numbers if phon in ph and (ph.index(phon)<len(ph)-1 if len(source)>len(syll)+1 else ph.index(phon)+1==len(ph)-1) and ph[ph.index(phon)+1] in (consonants.keys() if source[len(syll)] in consonants.keys() else vowels.keys())]
           try:
             phon=random.choice([p for p in pre if p!=phon]) if phonemes.endswith('056') else random.choice(pre)
             syll.append(phon)
