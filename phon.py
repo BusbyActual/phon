@@ -45,7 +45,7 @@ while len(syllables)>0:
       if (count,sb)==syllables[0] and match==True:
         sys.stdout.write('\r'+str(syllables.pop(0)[0])+' of '+str(len([''.join(n) for n in numbers])))
         sys.stdout.flush()
-        if count+1 in morphemes or count>morphemes[-1]:
+        if count+1 in morphemes or count+1>morphemes[-1]:
           phonemes+='\pdfcolorstack\match pop{}'
           match=False
           pg=True
