@@ -1,3 +1,2 @@
 # phon
-
-This artwork results from a mechanical process by which transcripts of the author's dreams are quantified and interpreted as symbols representing speech-sounds, which, by means of shuffling and recombining their parts, are re-formed with potential for describing new morphemes, but which could only be recognized as  language once spoken; the artwork is a method for divining new meaning from the author's speech, which may be understood to have been present as potentialities contained within his language, and thus within the half-remembered contents of his dreams.
+A work in progress. Passages are transcribed into IPA using numeric identifyers, which become the subjects of operations which produce new passages, resulting with the production of a document with phrases typeset in IPA.
